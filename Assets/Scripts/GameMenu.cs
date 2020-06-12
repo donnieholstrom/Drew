@@ -1,26 +1,40 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
-using UnityEngine;
+﻿using UnityEngine;
+
+using Pixelplacement;
 
 public class GameMenu : MonoBehaviour
 {
     private bool paused = false;
 
-    void Update()
+    public CanvasGroup gameMenu;
+
+    public AnimationCurve fadeInCurve;
+    public AnimationCurve fadeOutCurve;
+
+    private void Awake()
+    {
+        gameMenu.alpha = 0f;
+    }
+
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (!paused)
             {
-                Time.timeScale = 0f;
+                Tween.CanvasGroupAlpha(gameMenu, 1f, 0.5f, 0f, fadeInCurve);
+
+                // Time.timeScale = 0f;
                 paused = true;
             }
             
             else
             {
-                Time.timeScale = 1f;
+                Tween.CanvasGroupAlpha(gameMenu, 0f, 0.5f, 0f, fadeOutCurve);
+
+                // Time.timeScale = 1f;
                 paused = false;
+
             }
         }
     }
