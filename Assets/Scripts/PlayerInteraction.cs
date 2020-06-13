@@ -1,5 +1,6 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -31,62 +32,57 @@ public class PlayerInteraction : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Interactive") && available == true)
+        if (!collision.CompareTag("Interactive") || available != true)
         {
-            currentInteractive = collision.gameObject;
-
-            fairy.HoverOnObject(collision.transform);
-
-            available = false;
+            return;
         }
+
+        currentInteractive = collision.gameObject;
+
+        fairy.HoverOnObject(collision.transform);
+
+        available = false;
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (available == true || currentInteractive == null)
+        if (available || currentInteractive == null || collision.gameObject != currentInteractive)
         {
             return;
         }
 
-        if (collision.gameObject == currentInteractive)
-        {
-            currentInteractive = null;
+        currentInteractive = null;
 
-            fairy.FollowPlayer();
+        fairy.FollowPlayer();
 
-            available = true;
-        }
+        available = true;
     }
 
-    private void Update()
+    public void Interact(InputAction.CallbackContext context)
     {
-        if (currentInteractive == null)
+        if (!context.performed)
         {
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        interactive = currentInteractive.GetComponent<Interactive>();
+
+        if (interacting == false)
         {
-            interactive = currentInteractive.GetComponent<Interactive>();
+            InteractWith(interactive);
+        }
 
-            if (interacting == false)
-            {
-                Interact(interactive);
-            }
+        else
+        {
+            if (interactive.thisInteractiveType != Interactive.InteractiveType.Object) return;
 
-            else
-            {
-                if (interactive.thisInteractiveType == Interactive.InteractiveType.Object)
-                {
-                    mainDialogueUIBox.HideBox();
-                    interacting = false;
-                    playerMovement.interacting = false;
-                }
-            }
+            mainDialogueUIBox.HideBox();
+            interacting = false;
+            playerMovement.interacting = false;
         }
     }
 
-    private void Interact(Interactive _interactive)
+    private void InteractWith(Interactive _interactive)
     {
         mainDialogueBoxText.text = _interactive.description;
         mainDialogueUIBox.ShowBox();

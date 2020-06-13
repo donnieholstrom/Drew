@@ -1,5 +1,7 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.PlayerLoop;
 using UnityEngine.Rendering;
 
 public class PlayerMovement : MonoBehaviour
@@ -39,6 +41,8 @@ public class PlayerMovement : MonoBehaviour
 
     public bool interacting;
 
+    private bool moving;
+
     private void Awake()
     {
         interacting = false;
@@ -60,11 +64,35 @@ public class PlayerMovement : MonoBehaviour
         shoeColorRenderer = shoeColor.GetComponent<SpriteRenderer>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
+        if (!moving)
+        {
+            return;
+        }
+    }
 
+    public void Move(InputAction.CallbackContext context)
+    {
+        if (interacting) return;
+
+        if (context.started)
+        {
+            moving = true;
+        }
+
+        if (context.canceled)
+        {
+            moving = false;
+        }
+
+        rb.AddForce(movement * moveSpeed * Time.fixedDeltaTime);
+
+        UpdateSpriteLayers();
+    }
+
+    private void UpdateSpriteLayers()
+    {
         if (rb.velocity == Vector2.zero)
         {
             return;
@@ -107,20 +135,5 @@ public class PlayerMovement : MonoBehaviour
             bodyOutlineRenderer.sortingOrder = 0;
             shoeColorRenderer.sortingOrder = -1;
         }
-
-        else
-        {
-            return;
-        }
-    }
-
-    private void FixedUpdate()
-    {
-        if (interacting == true)
-        {
-            return;
-        }
-
-        rb.AddForce(movement * moveSpeed * Time.fixedDeltaTime);
     }
 }
