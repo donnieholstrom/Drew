@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Fairy : MonoBehaviour
 {
@@ -50,7 +49,7 @@ public class Fairy : MonoBehaviour
                 if (Vector3.Distance(transform.position, target.position) > distanceToStop)
                 {
                     direction = target.position - transform.position;
-                    rb.AddRelativeForce(direction.normalized * speed * Time.deltaTime, ForceMode2D.Force);
+                    rb.AddRelativeForce(direction.normalized * speed * Time.fixedDeltaTime, ForceMode2D.Force);
                 }
 
                 break;
